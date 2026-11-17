@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=ai-legible&utm_source=comment&utm_medium=referral&utm_id=f56a2951-9842-4b83-b08c-2e77f9fef81a
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+<meta name="hosting-provider" content="Kabod Nasca Tv">
+<meta name="netlify-deploy" content="   ">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kabod Nasca Tv</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon/icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+:root{
+    --bg:#0a0a0f; --panel:#14141d; --accent:#e3a209; --accent2:#fcc74c;
+    --text:#f4f4f6; --muted:#9ca3af; --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;background:var(--bg);color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif}
+  body{display:flex;flex-direction:column;overflow:hidden}
+
+  /* ===== HEADER ===== */
+  header{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;
+    background:linear-gradient(135deg,#16161f,#0f0f16);
+    border-bottom:1px solid #26262f;
+    flex-shrink:0;
+  }
+  .logo{width:42px;height:42px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),#7c2d12);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:13px;letter-spacing:.5px;flex-shrink:0}
+  .brand h1{font-size:19px;font-weight:800}
+  .brand small{color:var(--muted);font-size:11px;display:block;margin-top:1px}
+  .live-badge{
+    margin-left:auto;display:flex;align-items:center;gap:6px;
+    background:rgba(225,29,72,.15);border:1px solid rgba(225,29,72,.4);
+    color:var(--accent2);padding:5px 12px;border-radius:999px;
+    font-size:12px;font-weight:700;flex-shrink:0}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);
+    animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ===== PLAYER ===== */
+  .player-wrap{position:relative;background:#000;flex-shrink:0}
+  video{width:100%;aspect-ratio:16/9;display:block;background:#000}
+  .overlay{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;
+    background:rgba(10,10,15,.75);backdrop-filter:blur(8px);
+    transition:opacity .3s;z-index:5}
+  .overlay.hidden{opacity:0;pointer-events:none}
+  .spin{width:52px;height:52px;border-radius:50%;
+    border:4px solid rgba(255,255,255,.15);border-top-color:var(--accent);
+    animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .overlay p{color:var(--muted);font-size:14px}
+
+  .controls{
+    position:absolute;left:0;right:0;bottom:0;
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(transparent,rgba(0,0,0,.85));
+    transition:opacity .3s;z-index:6}
+  .controls.hidden{opacity:0;pointer-events:none}
+  .controls button{
+    background:rgba(255,255,255,.1);border:none;color:#fff;
+    width:40px;height:40px;border-radius:10px;font-size:18px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .controls button:active{background:rgba(255,255,255,.25)}
+  #qualityBtn{font-size:11px;font-weight:800;width:auto;padding:0 12px;height:40px}
+  .spacer{flex:1}
+
+  /* ===== CONTENT ===== */
+  .content{flex:1;overflow-y:auto;padding:18px 16px 40px}
+  .card{
+    background:var(--panel);border:1px solid #232330;
+    border-radius:var(--radius);padding:16px;margin-bottom:14px}
+  .card h3{font-size:14px;margin-bottom:10px;color:var(--accent2);
+    text-transform:uppercase;letter-spacing:1px}
+  .card p{color:var(--muted);font-size:14px;line-height:1.6}
+  .share-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .btn{
+    flex:1;min-width:130px;padding:13px 16px;border:none;border-radius:12px;
+    font-size:14px;font-weight:700;cursor:pointer;
+    background:var(--accent);color:#fff;transition:filter .2s}
+  .btn.secondary{background:#26262f;color:var(--text)}
+  .btn:active{filter:brightness(1.3)}
+
+  .install-banner{
+    display:none;margin:0 16px 12px;padding:14px 16px;
+    background:linear-gradient(135deg,var(--accent),#9f1239);
+    border-radius:var(--radius);font-size:14px;font-weight:600}
+  .install-banner button{
+    margin-top:10px;width:100%;padding:10px;border:none;border-radius:10px;
+    background:#fff;color:var(--accent);font-weight:800;cursor:pointer}
+
+  @media(min-width:820px){
+    body{max-width:900px;margin:0 auto;border-left:1px solid #1e1e28;
+         border-right:1px solid #1e1e28}
+    video{aspect-ratio:16/9}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📺</div>
+  <div class="brand">
+    <h1>Kabod Nasca Tv</h1>
+    <small>Tu canal, donde estés</small>
+  </div>
+  <div class="live-badge"><span class="dot"></span>EN VIVO</div>
+</header>
+
+<div class="player-wrap">
+  <video id="video" playsinline muted></video>
+  <div class="overlay" id="overlay">
+    <div class="spin"></div>
+    <p id="statusMsg">Conectando con la señal…</p>
+  </div>
+  <div class="controls hidden" id="controls">
+    <button id="playBtn" title="Reproducir/Pausar">⏸</button>
+    <button id="muteBtn" title="Sonido">🔇</button>
+    <div class="spacer"></div>
+    <button id="qualityBtn" title="Calidad">AUTO</button>
+    <button id="fsBtn" title="Pantalla completa">⛶</button>
+  </div>
+</div>
+
+<div class="install-banner" id="installBanner">
+  📲 Instala Tv Mundo en tu teléfono para verla como una app nativa.
+  <button id="installBtn">Instalar ahora</button>
+</div>
+
+<div class="content">
+  <div class="card">
+    <h3>📡 Transmisión en vivo</h3>
+    <p>Disfruta de la programación de Kabod Nasca Tv en vivo, 24/7, en calidad HD. Compatibilidad total con Android, iOS, web y Smart TV.</p>
+    <div class="share-row">
+      <a class="btn whatsapp" href="https://wa.me/51969673670" target="_blank" rel="noopener">💬 WhatsApp</a>
+      <button class="btn" id="shareBtn">🔗 Compartir</button>
+      <button class="btn secondary" id="reloadBtn">🔄 Recargar señal</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>ℹ️ Acerca del canal</h3>
+    <p>Kabod Nasca Tv es tu canal de televisión de confianza. Síguenos en nuestras redes sociales para enterarte de la programación, estrenos y contenido exclusivo.</p>
+
+<div class="radio-box"> <p>¿Quieres escuchar la radio?</p> <a href="https://tvradiokarimar.com/radio" class="button-redireccion"> <span class="live-dot"> <span>Radio</span><span>🎧 EN VIVO</span> </a> </div>
+
+<script>
+const STREAM_URL = "https://183.giatvcdn.com/ssh101/ssh101/chocolate/chunks.m3u8";
+const video = document.getElementById('video');
+const overlay = document.getElementById('overlay');
+const statusMsg = document.getElementById('statusMsg');
+const controls = document.getElementById('controls');
+let hls = null;
+
+function setStatus(msg, showSpinner = true){
+  statusMsg.textContent = msg;
+  overlay.classList.toggle('hidden', false);
+  overlay.querySelector('.spin').style.display = showSpinner ? 'block' : 'none';
+}
+
+function loadStream(){
+  if (hls){ hls.destroy(); hls = null; }
+  if (Hls.isSupported()){
+    hls = new Hls({
+      maxBufferLength: 30,
+      liveSyncDurationCount: 3,
+      enableWorker: true,
+      lowLatencyMode: true
+    });
+    hls.loadSource(STREAM_URL);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.play().catch(()=>{});
+      buildQualityMenu();
+    });
+    hls.on(Hls.Events.ERROR, (_, data) => {
+      if (data.fatal){
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) setStatus('Error de red. Reintentando…');
+        else if (data.type === Hls.ErrorTypes.MEDIA_ERROR){ hls.recoverMediaError(); return; }
+        else setStatus('Señal interrumpida. Reintentando…');
+        setTimeout(loadStream, 4000);
+      }
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')){
+    video.src = STREAM_URL;
+    video.play().catch(()=>{});
+  } else {
+    setStatus('Tu navegador no soporta streaming HLS.', false);
+  }
+}
+
+// Controles visibles al tocar
+const playerWrap = document.querySelector('.player-wrap');
+let hideTimer;
+function showControls(){
+  controls.classList.remove('hidden');
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(()=>controls.classList.add('hidden'), 3500);
+}
+playerWrap.addEventListener('click', showControls);
+
+document.getElementById('playBtn').onclick = e => {
+  e.stopPropagation();
+  if (video.paused){ video.play(); e.target.textContent = '⏸'; }
+  else { video.pause(); e.target.textContent = '▶'; }
+};
+document.getElementById('muteBtn').onclick = e => {
+  e.stopPropagation();
+  video.muted = !video.muted;
+  e.target.textContent = video.muted ? '🔇' : '🔊';
+};
+document.getElementById('fsBtn').onclick = e => {
+  e.stopPropagation();
+  if (document.fullscreenElement) document.exitFullscreen();
+  else playerWrap.requestFullscreen?.() || video.webkitEnterFullscreen?.();
+};
+document.getElementById('reloadBtn').onclick = () => { setStatus('Reconectando…'); loadStream(); };
+document.getElementById('shareBtn').onclick = async () => {
+  const data = { title:'Kabod Nasca Tv', text:'Mira Kabod Nasca Tv en vivo 📺', url: location.href };
+  if (navigator.share) navigator.share(data).catch(()=>{});
+  else { await navigator.clipboard.writeText(location.href); alert('Enlace copiado 📋'); }
+};
+
+// Menú de calidad
+function buildQualityMenu(){
+  const btn = document.getElementById('qualityBtn');
+  const levels = hls.levels;
+  if (!levels || levels.length <= 1){ btn.style.display='none'; return; }
+  let idx = -1;
+  btn.onclick = e => {
+    e.stopPropagation();
+    idx++;
+    if (idx >= levels.length) idx = -1; // vuelve a AUTO
+    hls.currentLevel = idx;
+    btn.textContent = idx === -1 ? 'AUTO' : Math.round(levels[idx].height) + 'p';
+  };
+}
+
+// Estados del video
+video.addEventListener('playing', () => overlay.classList.add('hidden'));
+video.addEventListener('waiting', () => setStatus('Cargando señal…'));
+video.addEventListener('error', () => { setStatus('Error de reproducción. Reintentando…'); setTimeout(loadStream, 4000); });
+
+// ===== PWA: instalación y service worker =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'block';
+});
+document.getElementById('installBtn').onclick = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').style.display = 'none';
+};
+if ('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// Inicio con sonido activado tras primer toque (autoplay policies)
+playerWrap.addEventListener('click', function once(){
+  video.muted = false;
+  document.getElementById('muteBtn').textContent = '🔊';
+  playerWrap.removeEventListener('click', once);
+});
+
+loadStream();
+</script>
+
+
+
+
+
+
+
+</body>
+</html>
